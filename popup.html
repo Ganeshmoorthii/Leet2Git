@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Leet2Git Settings</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <h1>Leet2Git Settings</h1>
+
+  <label for="token">GitHub Personal Access Token</label>
+  <input type="password" id="token" placeholder="ghp_xxxxxxxxxxxx" />
+
+  <label for="owner">Repo Owner (username/org)</label>
+  <input type="text" id="owner" placeholder="e.g. ganesha-m" />
+
+  <label for="repo">Repo Name</label>
+  <input type="text" id="repo" placeholder="e.g. leetcode-solutions" />
+
+  <label for="branch">Branch</label>
+  <input type="text" id="branch" placeholder="main" value="main" />
+
+  <label for="folder">Folder Path (optional)</label>
+  <input type="text" id="folder" placeholder="e.g. solutions" />
+
+  <button id="saveBtn">Save Settings</button>
+  <div id="status"></div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
