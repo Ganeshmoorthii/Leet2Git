@@ -135,15 +135,48 @@
     return { description, examples, constraints };
   }
 
+  function extractCmLines(cmContentEl) {
+    const lineEls = cmContentEl.querySelectorAll(":scope > .cm-line");
+    if (lineEls && lineEls.length > 0) {
+      return Array.from(lineEls).map((line) => line.textContent).join("\n");
+    }
+    return null;
+  }
+
   function getCodeFromEditor() {
     // LeetCode's editor is CodeMirror 6 (confirmed on the live page). A
     // Monaco-based fallback is also checked in case a different surface
     // (e.g. a mobile/legacy view) renders the editor differently.
-    const cmContentEl = document.querySelector(".cm-content");
-    if (cmContentEl) {
-      const lineEls = cmContentEl.querySelectorAll(":scope > .cm-line");
-      if (lineEls && lineEls.length > 0) {
-        return Array.from(lineEls).map((line) => line.textContent).join("\n");
+    //
+    // IMPORTANT: The testcase input box is ALSO a CodeMirror 6 editor with
+    // its own `.cm-content`, and it can appear before the solution editor in
+    // the DOM. A bare `querySelector(".cm-content")` was grabbing that box —
+    // archiving the example input (e.g. "123\n-123\n120") instead of the
+    // actual solution. So we must find the SOLUTION editor's `.cm-content`
+    // specifically, not just the first one on the page.
+
+    // The solution editor is a full CodeMirror instance with a line-number
+    // gutter (`.cm-gutters`); the testcase input box is a bare editor with
+    // no gutter. Prefer a `.cm-content` whose CodeMirror root (`.cm-editor`)
+    // contains gutters.
+    const editors = document.querySelectorAll(".cm-editor");
+    for (const editor of editors) {
+      if (!editor.querySelector(".cm-gutters")) continue; // skip gutterless (testcase) editors
+      const cmContentEl = editor.querySelector(".cm-content");
+      if (cmContentEl) {
+        const code = extractCmLines(cmContentEl);
+        if (code !== null) return code;
+      }
+    }
+
+    // Fallback: the solution editor lives inside LeetCode's main editor
+    // wrapper (`#editor`). Scope to it if the gutter heuristic didn't match.
+    const editorWrapper = document.querySelector("#editor");
+    if (editorWrapper) {
+      const cmContentEl = editorWrapper.querySelector(".cm-content");
+      if (cmContentEl) {
+        const code = extractCmLines(cmContentEl);
+        if (code !== null) return code;
       }
     }
 
